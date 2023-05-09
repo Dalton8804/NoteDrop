@@ -1,0 +1,14 @@
+<html>
+    <input class="newNoteTextField"
+        placeholder="Add New Note..."
+        (keydown.enter)="addNewNote()"
+        [(ngModel)]="newNoteTitle"
+        autofocus
+      >
+    <div class="seperator"></div>
+    <ul class="noteList">
+      <li *ngFor="let note of notesList;" (click)="removeNote(note)">
+        {{note.title}}
+      </li>
+    </ul>
+</html>

@@ -42,7 +42,7 @@ class TrayGenerator {
   }
 
   createTray = () => {
-    const icon = nativeImage.createFromPath('./src/menubar-core/assets/trayIcon.png')
+    const icon = nativeImage.createFromPath('./src/menubar-core/assets/trayIconDarkMode.png')
 
     this.tray = new Tray(icon);
     this.tray.setIgnoreDoubleClickEvents(true);

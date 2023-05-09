@@ -2,6 +2,7 @@ const { app, BrowserWindow } = require('electron');
 const TrayGenerator = require('./traygen');
 
 let mainWindow = null;
+let Tray = null;
 
 const createMainWindow = () => {
   mainWindow = new BrowserWindow({
@@ -21,9 +22,10 @@ const createMainWindow = () => {
 
 app.on('ready', () => {
   createMainWindow();
-  const Tray = new TrayGenerator(mainWindow, app);
+  Tray = new TrayGenerator(mainWindow, app);
   Tray.createTray();
 });
+
 app.dock.hide();
 
 

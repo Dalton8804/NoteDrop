@@ -1,4 +1,5 @@
 const { Tray, Menu, nativeImage } = require('electron');
+const path = require('path');
 
 class TrayGenerator {
   constructor(mainWindow, app) {
@@ -42,8 +43,8 @@ class TrayGenerator {
   }
 
   createTray = () => {
-    const icon = nativeImage.createFromPath('./src/menubar-core/assets/trayIconDarkMode.png')
-
+    const icon = nativeImage.createFromPath(path.resolve(__dirname, 'assets/trayIconDarkMode.png'));
+    
     this.tray = new Tray(icon);
     this.tray.setIgnoreDoubleClickEvents(true);
 

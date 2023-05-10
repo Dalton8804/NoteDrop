@@ -1,14 +1,14 @@
 {
-  "name": "notedrop",
+  "name": "NoteDrop",
   "version": "1.0.0",
   "description": "MacOS menubar app to take quick notes",
   "main": "src/menubar-core/main.js",
   "scripts": {
-    "start": "npm run start-client && npm run start-server",
+    "start": "npm run build-client && npm run start-server",
     "start-server": "electron-forge start",
-    "start-client": "pushd ./src/menubar-client && ng build --base-href ./ && popd",
+    "build-client": "pushd ./src/menubar-client && ng build --base-href ./ && popd",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "npm run build-client && electron-forge make"
   },
   "author": "Dalton Avery",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "@angular/core": "^16.0.0",
     "@angular/forms": "^16.0.0",
     "@angular/platform-browser-dynamic": "^16.0.0",
+    "@electron-forge/maker-dmg": "^6.1.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",

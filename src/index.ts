@@ -1,11 +1,18 @@
-import { app, nativeImage, Tray, BrowserWindow, Menu, MenuItemConstructorOptions } from 'electron';
+import { app, nativeImage, Tray, BrowserWindow, Menu, MenuItemConstructorOptions, ipcMain } from 'electron';
 import { default as path } from 'path';
+import fs from 'fs';
+import os from 'os';
 
 
 var tray: Tray;
 var win: BrowserWindow;
 function createWindow() {
   win = new BrowserWindow({
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    },
     backgroundColor: '#424242',
     width: 377,
     height: 165,
@@ -14,6 +21,7 @@ function createWindow() {
     fullscreenable: false,
     resizable: false,
     skipTaskbar: true,
+    
   })
 
   win.loadFile('public/index.html')
@@ -55,7 +63,26 @@ function rightClickMenu() {
   tray.popUpContextMenu(Menu.buildFromTemplate(menu));
 }
 
+ipcMain.on('save-user-data', (event, filePath, data) => {
+  if (filePath.startsWith('~')) {
+    filePath = path.join(os.homedir(), filePath.slice(1));
+  }
+  fs.writeFile(filePath, data, (err) => {
+    if (err) console.error('Error writing file:', err);
+  });
+});
 
+ipcMain.handle('read-user-data', async (event, filePath) => {
+  if (filePath.startsWith('~')) {
+    filePath = path.join(os.homedir(), filePath.slice(1));
+  }
+
+  try {
+    return fs.readFileSync(filePath).toString();
+  } catch (err) {
+    return null;
+  }
+});
 
 app.whenReady().then(() => {
   createWindow()

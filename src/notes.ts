@@ -1,3 +1,5 @@
+const PATH = "~/.notedrop";
+
 const newNoteTextField = (<HTMLInputElement>document.getElementById("nntf"));
 newNoteTextField.addEventListener("keydown", function(e) {
   if (e.code == "Enter")
@@ -13,31 +15,61 @@ function addNote() {
   if (!newNoteText.trim())
     return
 
-  const newNoteEl = document.createElement("li");
-  newNoteEl.innerHTML = newNoteText;
-  newNoteEl.id = self.crypto.randomUUID();
-  newNoteEl.addEventListener('click', (_) => removeNote(newNoteEl));
-
-  noteListEl.appendChild(newNoteEl);
-  noteList[newNoteEl.id] = newNoteText;
+  noteList[self.crypto.randomUUID()] = newNoteText;
 
   newNoteTextField.value = '';
-  alternateBackgrounds();
+  renderNotes();
+  writeToSaveFile()
 }
 
 function removeNote(El: HTMLLIElement) {
   delete noteList[El.id];
   El.remove();
-  alternateBackgrounds();
+  renderNotes();
+  writeToSaveFile()
 }
 
-function alternateBackgrounds() {
-  for (let i = 0; i < Object.keys(noteList).length; ++i) {
-    const el = document.getElementById(Object.keys(noteList)[i]);
+function renderNotes() {
+  noteListEl.innerHTML = '';
+  for (let i=0; i<Object.keys(noteList).length; ++i) {
+    const id = Object.keys(noteList)[i];
+    const newNoteEl = document.createElement("li");
+    newNoteEl.innerHTML = noteList[id];
+    newNoteEl.id = id;
+    newNoteEl.addEventListener('click', (_) => removeNote(newNoteEl));
     if (i % 2 === 0) {
-      el.style.background = '';
+      newNoteEl.style.background = '';
     } else {
-      el.style.background = '#585858';
+      newNoteEl.style.background = '#585858';
     }
+    noteListEl.appendChild(newNoteEl);
   }
 }
+
+function writeToSaveFile() {
+  var buffer: string = "";
+  for (let i = 0; i < Object.keys(noteList).length; ++i) {
+    const key = Object.keys(noteList)[i];
+    buffer += key + '\n=\n' + noteList[key] + '\n\n\n';
+  }
+
+  window.electronAPI.saveUserData(PATH, buffer);
+}
+
+function loadNotesFromSaveFile() {
+  window.electronAPI.readUserData(PATH).then((data: string) => {
+    if (data == null) {
+      console.log("Data null");
+      return;
+    }
+    var noteStrs = data.toString().split('\n\n\n');
+    noteStrs = noteStrs.slice(0, noteStrs.length-1);
+    for (let i = 0; i < noteStrs.length; ++i) {
+      var noteParts = noteStrs[i].split('\n=\n');
+      noteList[noteParts[0]] = noteParts[1];
+    }
+    renderNotes();
+  })
+}
+
+loadNotesFromSaveFile();

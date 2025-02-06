@@ -10,7 +10,7 @@
     "make": "npm run build && electron-forge make",
     "clean": "rm -r dist & rm -r out"
   },
-  "author": "Dalton Avery",
+  "author": "Dalton Avery TEST",
   "license": "MIT",
   "devDependencies": {
     "@electron-forge/cli": "^7.6.1",

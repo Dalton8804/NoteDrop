@@ -1,7 +1,7 @@
-import { app, nativeImage, Tray, BrowserWindow, Menu, MenuItemConstructorOptions, ipcMain } from 'electron';
-import { default as path } from 'path';
+import { app, BrowserWindow, globalShortcut, ipcMain, Menu, MenuItemConstructorOptions, nativeImage, Tray } from 'electron';
 import fs from 'fs';
 import os from 'os';
+import { default as path } from 'path';
 
 
 var tray: Tray;
@@ -21,7 +21,6 @@ function createWindow() {
     fullscreenable: false,
     resizable: false,
     skipTaskbar: true,
-    
   })
 
   win.loadFile('public/index.html')
@@ -60,6 +59,8 @@ function rightClickMenu() {
     } as MenuItemConstructorOptions
   ];
 
+  win.hide();
+
   tray.popUpContextMenu(Menu.buildFromTemplate(menu));
 }
 
@@ -85,8 +86,12 @@ ipcMain.handle('read-user-data', async (event, filePath) => {
 });
 
 app.whenReady().then(() => {
-  createWindow()
+  createWindow();
   createTray();
+  
+  win.addListener("blur", () => win.hide());
+
+  globalShortcut.register("Alt+Shift+o", () => win.show())
 })
 
 app.dock.hide();

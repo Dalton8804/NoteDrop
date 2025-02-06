@@ -86,7 +86,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![NoteDrop Screen Shot][product-screenshot]](https://github.com/Dalton8804/NoteDrop)
+[![NoteDrop Screen Shot][product-screenshot]](https://github.com/Dalton8804/NoteDrop/blob/main/public/assets/NoteDropScreenshot.png)
 
 This project is a result of laziness and curiosity. I wanted to know how to make a menubar app for my Mac, I really hated the current quick note solutions since it takes more than .2 seconds to open any given app. So I took it upon myself to fix that. The current project is obviously catered to my needs, but since this is a build it yourself distribution, feel free to change or remove any global keybinds or local paths.
 

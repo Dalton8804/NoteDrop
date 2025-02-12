@@ -1,11 +1,13 @@
 import { app, BrowserWindow, globalShortcut, ipcMain, Menu, MenuItemConstructorOptions, nativeImage, Tray } from 'electron';
-import fs from 'fs';
+import { Store } from './store';
 import os from 'os';
 import { default as path } from 'path';
 
 
 var tray: Tray;
 var win: BrowserWindow;
+var store = new Store();
+
 function createWindow() {
   win = new BrowserWindow({
     webPreferences: {
@@ -22,6 +24,8 @@ function createWindow() {
     resizable: false,
     skipTaskbar: true,
   })
+
+  app.setPath('userData', os.homedir()+"/.notedrop");
 
   win.loadFile('public/index.html')
 }
@@ -54,9 +58,23 @@ function toggleWindow() {
 function rightClickMenu() {
   const menu = [
     {
+        label: 'Launch at startup',
+        type: 'checkbox',
+        checked: store.getConfig('launchAtStartup'),
+        click: (e) => {
+            store.setConfig('launchAtStartup', e.checked);
+            app.setLoginItemSettings({
+                openAtLogin: e.checked,
+            });
+        }
+    } as MenuItemConstructorOptions,
+    {
+        type: 'separator'
+    } as MenuItemConstructorOptions,
+    {
       role: 'quit',
       accelerator: 'Command+Q'
-    } as MenuItemConstructorOptions
+    } as MenuItemConstructorOptions,
   ];
 
   win.hide();
@@ -64,26 +82,21 @@ function rightClickMenu() {
   tray.popUpContextMenu(Menu.buildFromTemplate(menu));
 }
 
-ipcMain.on('save-user-data', (event, filePath, data) => {
-  if (filePath.startsWith('~')) {
-    filePath = path.join(os.homedir(), filePath.slice(1));
-  }
-  fs.writeFile(filePath, data, (err) => {
-    if (err) console.error('Error writing file:', err);
-  });
+ipcMain.on('save', (event, key, value) => {
+  store.set(key, value);
 });
 
-ipcMain.handle('read-user-data', async (event, filePath) => {
-  if (filePath.startsWith('~')) {
-    filePath = path.join(os.homedir(), filePath.slice(1));
-  }
-
-  try {
-    return fs.readFileSync(filePath).toString();
-  } catch (err) {
-    return null;
-  }
+ipcMain.handle('getAll', async (event) => {
+  return store.getAll();
 });
+
+ipcMain.handle('get', async (event, key) => {
+  return store.get(key);
+});
+
+ipcMain.on('delete', (event, key) => {
+  store.delete(key);
+})
 
 app.whenReady().then(() => {
   createWindow();
@@ -95,5 +108,4 @@ app.whenReady().then(() => {
 })
 
 app.dock.hide();
-
 

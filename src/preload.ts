@@ -1,6 +1,8 @@
-const { contextBridge, ipcRenderer } = require('electron');
+import { contextBridge, ipcRenderer } from "electron";
 
-contextBridge.exposeInMainWorld('electronAPI', {
-  saveUserData: (filePath: string, data: string) => ipcRenderer.send('save-user-data', filePath, data),
-  readUserData: (filePath: string) => ipcRenderer.invoke('read-user-data', filePath),
+contextBridge.exposeInMainWorld('data', {
+    save: (key: string, value: string) => ipcRenderer.send('save', key, value),
+    get: (key: string) => ipcRenderer.invoke('get', key),
+    getAll: () => ipcRenderer.invoke('getAll'), 
+    delete: (key: string) => ipcRenderer.send('delete', key),
 });

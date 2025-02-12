@@ -15,18 +15,26 @@ function addNote() {
   if (!newNoteText.trim())
     return
 
-  noteList[self.crypto.randomUUID()] = newNoteText;
+  const id = self.crypto.randomUUID();
+  noteList[id] = newNoteText;
+  window.data.save(id, newNoteText);
 
   newNoteTextField.value = '';
   renderNotes();
-  writeToSaveFile()
 }
 
 function removeNote(El: HTMLLIElement) {
   delete noteList[El.id];
   El.remove();
   renderNotes();
-  writeToSaveFile()
+  window.data.delete(El.id);
+}
+
+function loadNotes() {
+    window.data.getAll().then((data) => {
+        noteList = JSON.parse(data);
+        renderNotes();
+    });
 }
 
 function renderNotes() {
@@ -42,34 +50,9 @@ function renderNotes() {
     } else {
       newNoteEl.style.background = '#585858';
     }
+
     noteListEl.appendChild(newNoteEl);
   }
 }
 
-function writeToSaveFile() {
-  var buffer: string = "";
-  for (let i = 0; i < Object.keys(noteList).length; ++i) {
-    const key = Object.keys(noteList)[i];
-    buffer += key + '\n=\n' + noteList[key] + '\n\n\n';
-  }
-
-  window.electronAPI.saveUserData(PATH, buffer);
-}
-
-function loadNotesFromSaveFile() {
-  window.electronAPI.readUserData(PATH).then((data: string) => {
-    if (data == null) {
-      console.log("Data null");
-      return;
-    }
-    var noteStrs = data.toString().split('\n\n\n');
-    noteStrs = noteStrs.slice(0, noteStrs.length-1);
-    for (let i = 0; i < noteStrs.length; ++i) {
-      var noteParts = noteStrs[i].split('\n=\n');
-      noteList[noteParts[0]] = noteParts[1];
-    }
-    renderNotes();
-  })
-}
-
-loadNotesFromSaveFile();
+loadNotes();

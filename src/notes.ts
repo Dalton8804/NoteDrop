@@ -1,5 +1,3 @@
-const PATH = "~/.notedrop";
-
 const newNoteTextField = (<HTMLInputElement>document.getElementById("nntf"));
 newNoteTextField.addEventListener("keydown", function(e) {
   if (e.code == "Enter")

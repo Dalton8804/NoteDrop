@@ -35,7 +35,13 @@ jobs:
           APPLE_API_KEY: ${{ runner.temp }}/authkey.p8
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-        run: npm run make -- --arch="arm64,x64"
+        # Built one arch at a time: maker-dmg stages every DMG at the same
+        # out/make/NoteDrop.dmg before renaming it per-arch, so a combined
+        # --arch="arm64,x64" run races itself and fails with "Target already exists".
+        run: |
+          npm run build
+          npx electron-forge make --arch=arm64
+          npx electron-forge make --arch=x64
 
       - name: Notarize & staple the DMG
         env:

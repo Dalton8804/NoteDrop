@@ -50,6 +50,11 @@ jobs:
             xcrun stapler validate "$dmg"
           done
 
+      - name: Rename DMG to a stable, version-less filename
+        run: |
+          dmg=$(find out/make -name '*-arm64.dmg' | head -1)
+          mv "$dmg" out/make/NoteDrop-macos-arm64.dmg
+
       - name: Upload build artifacts
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@v7
@@ -62,5 +67,5 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: |
-            out/make/**/*.dmg
+            out/make/NoteDrop-macos-arm64.dmg
             out/make/**/*.zip

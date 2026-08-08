@@ -37,6 +37,19 @@ jobs:
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         run: npm run make
 
+      - name: Notarize & staple the DMG
+        env:
+          KEY: ${{ runner.temp }}/authkey.p8
+          KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: |
+          find out/make -name '*.dmg' -print0 | while IFS= read -r -d '' dmg; do
+            echo "Notarizing $dmg"
+            xcrun notarytool submit "$dmg" --key "$KEY" --key-id "$KEY_ID" --issuer "$ISSUER" --wait
+            xcrun stapler staple "$dmg"
+            xcrun stapler validate "$dmg"
+          done
+
       - name: Upload build artifacts
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@v7

@@ -1,0 +1,91 @@
+name: Release (signed + notarized)
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+
+      - name: Install fastlane
+        run: gem install fastlane -N
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install signing certificate (match, readonly)
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+        run: |
+          KC_NAME="build.keychain"
+          KC_PWD="$(openssl rand -base64 24)"
+
+          security create-keychain -p "$KC_PWD" "$KC_NAME"
+          security set-keychain-settings -lut 21600 "$KC_NAME"
+          security unlock-keychain -p "$KC_PWD" "$KC_NAME"
+          security list-keychains -d user -s "$KC_NAME" login.keychain
+          security default-keychain -s "$KC_NAME"
+
+          fastlane match developer_id \
+            --readonly true \
+            --git_url https://github.com/Dalton8804/ios-certs.git \
+            --team_id 9DVFF5W7KK \
+            --app_identifier com.daltonavery.notedrop \
+            --skip_provisioning_profiles true \
+            --keychain_name "$KC_NAME" \
+            --keychain_password "$KC_PWD"
+
+          echo "BUILD_KEYCHAIN=$KC_NAME" >> "$GITHUB_ENV"
+
+      - name: Write App Store Connect API key
+        env:
+          APPLE_API_KEY_B64: ${{ secrets.APPLE_API_KEY_B64 }}
+        run: echo "$APPLE_API_KEY_B64" | base64 --decode > "$RUNNER_TEMP/authkey.p8"
+
+      - name: Build, sign & notarize
+        env:
+          APPLE_API_KEY: ${{ runner.temp }}/authkey.p8
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: npm run make
+
+      - name: Upload build artifacts
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: NoteDrop-macos
+          path: out/make/**
+
+      - name: Publish GitHub Release
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            out/make/**/*.dmg
+            out/make/**/*.zip
+
+      - name: Cleanup
+        if: always()
+        run: |
+          security delete-keychain "${BUILD_KEYCHAIN:-build.keychain}" || true
+          rm -f "$RUNNER_TEMP/authkey.p8"

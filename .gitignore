@@ -3,3 +3,5 @@ node_modules/
 out/
 dist/
 .DS_Store
+*.p8
+.env

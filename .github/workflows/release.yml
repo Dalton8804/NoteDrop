@@ -35,7 +35,7 @@ jobs:
           APPLE_API_KEY: ${{ runner.temp }}/authkey.p8
           APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-        run: npm run make
+        run: npm run make -- --arch="arm64,x64"
 
       - name: Notarize & staple the DMG
         env:
@@ -50,10 +50,14 @@ jobs:
             xcrun stapler validate "$dmg"
           done
 
-      - name: Rename DMG to a stable, version-less filename
+      - name: Rename DMGs to stable, version-less filenames
         run: |
-          dmg=$(find out/make -name '*-arm64.dmg' | head -1)
-          mv "$dmg" out/make/NoteDrop-macos-arm64.dmg
+          find out/make -name '*.dmg' -print0 | while IFS= read -r -d '' dmg; do
+            case "$dmg" in
+              *arm64*) mv "$dmg" out/make/NoteDrop-macos-arm64.dmg ;;
+              *x64*|*x86_64*) mv "$dmg" out/make/NoteDrop-macos-x64.dmg ;;
+            esac
+          done
 
       - name: Upload build artifacts
         if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -68,4 +72,5 @@ jobs:
         with:
           files: |
             out/make/NoteDrop-macos-arm64.dmg
+            out/make/NoteDrop-macos-x64.dmg
             out/make/**/*.zip

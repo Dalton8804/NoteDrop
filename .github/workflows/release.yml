@@ -12,55 +12,23 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Import Developer ID certificate
+        uses: apple-actions/import-codesign-certs@v7
         with:
-          ruby-version: '3.3'
+          p12-file-base64: ${{ secrets.APPLE_CERT_P12_BASE64 }}
+          p12-password: ${{ secrets.APPLE_CERT_PASSWORD }}
 
-      - name: Install fastlane
-        run: gem install fastlane -N
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install signing certificate (match, readonly)
-        env:
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-        run: |
-          KC_NAME="build.keychain"
-          KC_PWD="$(openssl rand -base64 24)"
-
-          security create-keychain -p "$KC_PWD" "$KC_NAME"
-          security set-keychain-settings -lut 21600 "$KC_NAME"
-          security unlock-keychain -p "$KC_PWD" "$KC_NAME"
-          security list-keychains -d user -s "$KC_NAME" login.keychain
-          security default-keychain -s "$KC_NAME"
-
-          fastlane match developer_id \
-            --readonly true \
-            --git_url https://github.com/Dalton8804/ios-certs.git \
-            --team_id 9DVFF5W7KK \
-            --app_identifier com.daltonavery.notedrop \
-            --skip_provisioning_profiles true \
-            --keychain_name "$KC_NAME" \
-            --keychain_password "$KC_PWD"
-
-          echo "BUILD_KEYCHAIN=$KC_NAME" >> "$GITHUB_ENV"
+      - run: npm ci
 
       - name: Write App Store Connect API key
-        env:
-          APPLE_API_KEY_B64: ${{ secrets.APPLE_API_KEY_B64 }}
-        run: echo "$APPLE_API_KEY_B64" | base64 --decode > "$RUNNER_TEMP/authkey.p8"
+        run: echo "${{ secrets.APPLE_API_KEY_B64 }}" | base64 --decode > "$RUNNER_TEMP/authkey.p8"
 
       - name: Build, sign & notarize
         env:
@@ -83,9 +51,3 @@ jobs:
           files: |
             out/make/**/*.dmg
             out/make/**/*.zip
-
-      - name: Cleanup
-        if: always()
-        run: |
-          security delete-keychain "${BUILD_KEYCHAIN:-build.keychain}" || true
-          rm -f "$RUNNER_TEMP/authkey.p8"

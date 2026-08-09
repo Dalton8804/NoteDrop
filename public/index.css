@@ -50,7 +50,39 @@
 
 li {
   user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 1px 10px;
+}
+
+.noteText {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noteDelete {
+  flex: 0 0 auto;
+  visibility: hidden;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #919191;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1;
   cursor: pointer;
+}
+
+li:hover .noteDelete {
+  visibility: visible;
+}
+
+.noteDelete:hover {
+  color: #e08a8a;
 }
 
 /* Seperator */

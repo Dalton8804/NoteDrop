@@ -1,6 +1,6 @@
 {
   "name": "NoteDrop",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "MacOS menubar app to take quick notes",
   "main": "dist/index.js",
   "scripts": {

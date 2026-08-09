@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    // Electron 34 ships Node 20 / Chromium 132 — no downlevelling needed.
+    "target": "ES2022",
     "noImplicitAny": true,
     "sourceMap": true,
     "esModuleInterop": true,

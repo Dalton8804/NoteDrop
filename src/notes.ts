@@ -40,9 +40,25 @@ function renderNotes() {
   for (let i=0; i<Object.keys(noteList).length; ++i) {
     const id = Object.keys(noteList)[i];
     const newNoteEl = document.createElement("li");
-    newNoteEl.innerHTML = noteList[id];
     newNoteEl.id = id;
-    newNoteEl.addEventListener('click', (_) => removeNote(newNoteEl));
+
+    // textContent, not innerHTML — note text is untrusted, and with
+    // integrations on it round-trips through external tools.
+    const textEl = document.createElement("span");
+    textEl.className = "noteText";
+    textEl.textContent = noteList[id];
+
+    // Deletes propagate to integrations, so removal needs a deliberate
+    // target rather than a click anywhere on the row.
+    const deleteEl = document.createElement("button");
+    deleteEl.className = "noteDelete";
+    deleteEl.textContent = "✕";
+    deleteEl.title = "Delete note";
+    deleteEl.addEventListener('click', (_) => removeNote(newNoteEl));
+
+    newNoteEl.appendChild(textEl);
+    newNoteEl.appendChild(deleteEl);
+
     if (i % 2 === 0) {
       newNoteEl.style.background = '';
     } else {
@@ -52,5 +68,7 @@ function renderNotes() {
     noteListEl.appendChild(newNoteEl);
   }
 }
+
+window.data.onRefresh(loadNotes);
 
 loadNotes();

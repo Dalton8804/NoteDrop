@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>NoteDrop Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+
+<body>
+  <h1>Integrations</h1>
+
+  <section class="integration">
+    <label class="toggle">
+      <input type="checkbox" id="obsidian-enabled">
+      <span class="toggleLabel">Obsidian</span>
+    </label>
+
+    <div class="fields" id="obsidian-fields">
+      <div class="grid">
+        <label for="obsidian-vault">Vault</label>
+        <div class="row">
+          <input type="text" id="obsidian-vault" placeholder="None chosen" readonly>
+          <button type="button" id="obsidian-choose">Choose…</button>
+        </div>
+
+        <label for="obsidian-subfolder">Folder</label>
+        <input type="text" id="obsidian-subfolder" placeholder="NoteDrop">
+
+        <label for="obsidian-filename">File name</label>
+        <input type="text" id="obsidian-filename" placeholder="{date}-{slug}">
+        <p class="hint">{date} {time} {title} {slug}</p>
+
+        <label for="obsidian-delete-outbound">Delete here</label>
+        <select id="obsidian-delete-outbound">
+          <option value="ask">Ask</option>
+          <option value="always">Delete file too</option>
+          <option value="never">Keep file</option>
+        </select>
+
+        <label for="obsidian-delete-inbound">Delete in Obsidian</label>
+        <select id="obsidian-delete-inbound">
+          <option value="remove">Remove note</option>
+          <option value="keep">Keep note</option>
+        </select>
+      </div>
+
+      <div class="row actions">
+        <button type="button" id="obsidian-test">Test</button>
+        <span class="status" id="obsidian-status"></span>
+      </div>
+    </div>
+  </section>
+</body>
+<script src="../dist/settings.js"></script>
+
+</html>

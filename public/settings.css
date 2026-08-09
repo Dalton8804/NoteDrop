@@ -1,0 +1,170 @@
+:root {
+  --bg: #424242;
+  --fg: #d8d8d8;
+  --muted: #919191;
+  --line: #585858;
+  --field: #383838;
+  --ok: #7fc08a;
+  --bad: #e08a8a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px 24px 24px;
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px "Century Gothic", CenturyGothic, Geneva, AppleGothic, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+h1 {
+  margin: 0 0 16px;
+  font-size: 17px;
+  font-weight: 400;
+}
+
+/* Integration block */
+
+.integration {
+  border-top: 1px solid var(--line);
+  padding: 14px 0;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.toggleLabel {
+  font-size: 15px;
+}
+
+/* Fields */
+
+.fields {
+  margin: 12px 0 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fields[hidden] {
+  display: none;
+}
+
+/* Label in the left column, control in the right. */
+.grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px 14px;
+}
+
+.grid > label {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* Sits under the control it describes, in the right-hand column. */
+.grid > .hint {
+  grid-column: 2;
+  margin: -6px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.row.actions {
+  margin-top: 2px;
+}
+
+select {
+  width: 100%;
+  padding: 5px 8px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--muted);
+}
+
+input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--fg);
+  font: inherit;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--muted);
+}
+
+input[type="text"][readonly] {
+  color: var(--muted);
+}
+
+button {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--muted);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Test result */
+
+.status {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted);
+  white-space: pre-wrap;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.status.ok {
+  color: var(--ok);
+}
+
+.status.bad {
+  color: var(--bad);
+}
